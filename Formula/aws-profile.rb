@@ -7,20 +7,20 @@ class AwsProfile < Formula
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/lorenzo85/aws-profile/releases/download/v0.1.0/aws-profile-darwin-arm64.tar.gz"
-      sha256 "8d1ea05c75f011fb0fef5ebfca7e99acd9bd51def65a5cfa5d8cc3775fc1e496"
+      sha256 "0a7dc8c82b02c1678d10ca72d3d36f27b73efbe0a4d997641b30628e66d05772"
     else
       url "https://github.com/lorenzo85/aws-profile/releases/download/v0.1.0/aws-profile-darwin-amd64.tar.gz"
-      sha256 "2984bc10450b22a0e96bef8a209c004829752717a815aba73860ccd460b5cffc"
+      sha256 "34f7e3f44c938d7b3e67aa8dd257ae493a980ccfa669b272c5abd7bf87bf6aae"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
       url "https://github.com/lorenzo85/aws-profile/releases/download/v0.1.0/aws-profile-linux-arm64.tar.gz"
-      sha256 "734c4614093f9caa99a021961ae5182240faa155ffb9baaa02faa802d8d7edb2"
+      sha256 "25ca8520785addd50e6f60c7183b0fdedb21a5be3ad57f50782717502b7afd60"
     else
       url "https://github.com/lorenzo85/aws-profile/releases/download/v0.1.0/aws-profile-linux-amd64.tar.gz"
-      sha256 "b7fa64b952280eacb91d62f4c0db0f150a7c4d768371265ad3bcfe40f94888c1"
+      sha256 "c4e9e9510d57c5cf232d9699907142c9c2ca7d90a056dc3d282f17ef00c02fca"
     end
   end
 
