@@ -1,26 +1,26 @@
 class AwsProfile < Formula
   desc "AWS IAM Identity Center profile switcher for infrastructure operators"
   homepage "https://github.com/lorenzo85/aws-profile"
-  version "0.5.0"
+  version "0.6.0"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.5.0/aws-profile-darwin-arm64.tar.gz"
-      sha256 "2e55520084655e82e37754cb8eda9b048fa10d26998e93563822c03cf818dc38"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.6.0/aws-profile-darwin-arm64.tar.gz"
+      sha256 "07d47e9ad6159beed653fdc30232a55fba2802732cb2f2efb890bf3b970192aa"
     else
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.5.0/aws-profile-darwin-amd64.tar.gz"
-      sha256 "66398989919ce18e50d6b7ea8570f3c2f43b641dbbb72318f8ed82e01aea4561"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.6.0/aws-profile-darwin-amd64.tar.gz"
+      sha256 "2a3268d85b3d018960d014c659044228047d2ae82ed6236ff7f47fcc8c68232b"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.5.0/aws-profile-linux-arm64.tar.gz"
-      sha256 "748e87c32f860b5a31fb0bb70788149d61075ae1159e7ff420b91434068dddbd"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.6.0/aws-profile-linux-arm64.tar.gz"
+      sha256 "1733a589725c8c54dcf802ba86ec34fdd9e39b1f9feeba7b0b9acb32b70cf526"
     else
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.5.0/aws-profile-linux-amd64.tar.gz"
-      sha256 "96945b40f0cb737e7b8d7975559837a918011bc53b26312d1e172322919d65ec"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.6.0/aws-profile-linux-amd64.tar.gz"
+      sha256 "53f8088d28d8b61e737c7717558296e72cd12c80b787e87efc35ceaa3ab203e8"
     end
   end
 
