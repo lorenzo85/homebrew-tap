@@ -1,16 +1,16 @@
 class AwsProfile < Formula
   desc "AWS IAM Identity Center profile switcher for infrastructure operators"
   homepage "https://github.com/lorenzo85/aws-profile"
-  version "0.8.3"
+  version "0.8.4"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.3/aws-profile-darwin-arm64.tar.gz"
-      sha256 "fa4bc4f8e2635c669c5dba2cb0a9f61114eef62386a966151fcaa3fa09db7c06"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.4/aws-profile-darwin-arm64.tar.gz"
+      sha256 "28f375a727a757bb3456ee2d61faa757b674d81f82564568c3a54d45663a3b92"
     else
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.3/aws-profile-darwin-amd64.tar.gz"
-      sha256 "a547c8fc2dda306a00b3838f1a5991ce84162335d5706fc28e307f60a64b14ff"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.4/aws-profile-darwin-amd64.tar.gz"
+      sha256 "b67a092b2067d3e202ff4b2d318689bf9080227e78cbac369b1a2a44284b0406"
     end
   end
 
@@ -18,11 +18,11 @@ class AwsProfile < Formula
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.3/aws-profile-linux-arm64.tar.gz"
-      sha256 "e9fd144816ffbc3259181501784e835215c701bbdbd465b6840c0fd9b6c7ec23"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.4/aws-profile-linux-arm64.tar.gz"
+      sha256 "129596744b3d67875ac7176b9cea14799791ad5886c038e970993dcb8914c64a"
     else
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.3/aws-profile-linux-amd64.tar.gz"
-      sha256 "e9cbc2ffa28d579e1dddcc94960532744e258e067d22c356def3e40498c8fc15"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.4/aws-profile-linux-amd64.tar.gz"
+      sha256 "8e489965d1139c4d6a3c3759e0fc3dd9ff8e273f8d7193002b9af680d7039bc5"
     end
   end
 
@@ -33,13 +33,16 @@ class AwsProfile < Formula
     (share/"fish/vendor_functions.d").mkpath
     (share/"fish/vendor_functions.d/awsp.fish").write <<~FISH
       function awsp --description 'Interactively select an AWS profile'
-        set account (aws-profile list | fzf --prompt="AWS account: " --height=40%)
-        test -n "" || return
+        set account (aws-profile list | fzf --prompt="AWS account: " --height=~40%)
+        test -n "$account" || return
+        if not aws sts get-caller-identity --profile $account &>/dev/null
+          aws sso login --profile $account
+        end
         read -l -P "Elevated access? [y/N] " elevated
-        if test "" = y -o "" = Y
-          aws-profile +
+        if test "$elevated" = y -o "$elevated" = Y
+          aws-profile $account+
         else
-          aws-profile 
+          aws-profile $account
         end
       end
     FISH
@@ -49,12 +52,15 @@ class AwsProfile < Formula
     (share/"zsh/site-functions/_awsp").write <<~ZSH
       awsp() {
         local account
-        account= || return
+        account=$(aws-profile list | fzf --prompt="AWS account: " --height=~40%) || return
+        if ! aws sts get-caller-identity --profile "$account" &>/dev/null; then
+          aws sso login --profile "$account"
+        fi
         read -r -p "Elevated access? [y/N] " elevated
-        if [[ "" =~ ^[Yy]$ ]]; then
-          aws-profile "+"
+        if [[ "$elevated" =~ ^[Yy]$ ]]; then
+          aws-profile "${account}+"
         else
-          aws-profile ""
+          aws-profile "$account"
         fi
       }
     ZSH
