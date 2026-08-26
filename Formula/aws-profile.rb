@@ -1,16 +1,16 @@
 class AwsProfile < Formula
   desc "AWS IAM Identity Center profile switcher for infrastructure operators"
   homepage "https://github.com/lorenzo85/aws-profile"
-  version "0.9.1"
+  version "0.9.2"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.1/aws-profile-darwin-arm64.tar.gz"
-      sha256 "9129693150601f80551c912f5b2586aafb798843c483193874db6452e60a62f1"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.2/aws-profile-darwin-arm64.tar.gz"
+      sha256 "e753d66afc0eecb9c91f1328e5823a5f52bddaa37f3fb8cc862bcd75bc030d6d"
     else
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.1/aws-profile-darwin-amd64.tar.gz"
-      sha256 "5d9d680f500a5a3700914ffd445509ae75561be772389992c087d573e12634da"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.2/aws-profile-darwin-amd64.tar.gz"
+      sha256 "0fc8e4a258bc8fe6e11a5e8ca3ff33438abc785ead74fc9b377fada9b2b0007b"
     end
   end
 
@@ -18,11 +18,11 @@ class AwsProfile < Formula
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.1/aws-profile-linux-arm64.tar.gz"
-      sha256 "fb896559be0784a1596db2f7339d03f2e86a4964c1b2506fc57b135ad88e2255"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.2/aws-profile-linux-arm64.tar.gz"
+      sha256 "21581b41bb4cb18506dd8ad56f4362eb274078213614529653cab81f97b8454d"
     else
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.1/aws-profile-linux-amd64.tar.gz"
-      sha256 "89d740b5b32d0c447367f3d4a3a99737eed73d38f680d5ced1eb7ea5817cc70f"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.2/aws-profile-linux-amd64.tar.gz"
+      sha256 "39569ee32ea5def13e6382028ab7be1a5dffe94057c4bfc6caa4ef4c73d847e4"
     end
   end
 
@@ -33,8 +33,13 @@ class AwsProfile < Formula
     (share/"fish/vendor_functions.d").mkpath
     (share/"fish/vendor_functions.d/awsp.fish").write <<~FISH
       function awsp --description 'Interactively select an AWS profile'
-        set accounts (aws-profile list | fzf --prompt="AWS account: " --height=~40% --multi --bind 'space:toggle' --marker '✓ ')
-        test -n "$accounts" || return
+        set selection (begin; echo "[all → standing access]"; aws-profile list; end | fzf --prompt="AWS account: " --height=~40% --multi --bind 'space:toggle' --marker '✓ ')
+        test -n "$selection" || return
+        if contains -- "[all → standing access]" $selection
+          aws-profile reset
+          return
+        end
+        set accounts $selection
         set start_url (aws configure get sso_start_url --profile $accounts[1] 2>/dev/null)
         if not python3 -c "import json,glob,os,sys; from datetime import datetime,timezone; m=next((d for f in glob.glob(os.path.expanduser('~/.aws/sso/cache/*.json')) for d in [json.load(open(f))] if d.get('startUrl')==sys.argv[1] and d.get('accessToken')),None); sys.exit(0 if m and datetime.fromisoformat(m['expiresAt'].replace('Z','+00:00'))>datetime.now(timezone.utc) else 1)" $start_url 2>/dev/null
           aws sso login --profile $accounts[1]
@@ -55,7 +60,11 @@ class AwsProfile < Formula
     (share/"zsh/site-functions/_awsp").write <<~ZSH
       awsp() {
         local accounts start_url elevated account
-        accounts=$(aws-profile list | fzf --prompt="AWS account: " --height=~40% --multi --bind 'space:toggle' --marker '✓ ') || return
+        accounts=$({ echo "[all → standing access]"; aws-profile list; } | fzf --prompt="AWS account: " --height=~40% --multi --bind 'space:toggle' --marker '✓ ') || return
+        if echo "$accounts" | grep -qx '\[all → standing access\]'; then
+          aws-profile reset
+          return
+        fi
         start_url=$(aws configure get sso_start_url --profile "$(echo "$accounts" | head -1)" 2>/dev/null)
         if ! python3 -c "import json,glob,os,sys; from datetime import datetime,timezone; m=next((d for f in glob.glob(os.path.expanduser('~/.aws/sso/cache/*.json')) for d in [json.load(open(f))] if d.get('startUrl')==sys.argv[1] and d.get('accessToken')),None); sys.exit(0 if m and datetime.fromisoformat(m['expiresAt'].replace('Z','+00:00'))>datetime.now(timezone.utc) else 1)" "$start_url" 2>/dev/null; then
           aws sso login --profile "$(echo "$accounts" | head -1)"
