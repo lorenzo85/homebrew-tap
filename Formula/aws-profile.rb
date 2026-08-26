@@ -1,16 +1,16 @@
 class AwsProfile < Formula
   desc "AWS IAM Identity Center profile switcher for infrastructure operators"
   homepage "https://github.com/lorenzo85/aws-profile"
-  version "0.8.8"
+  version "0.9.0"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.8/aws-profile-darwin-arm64.tar.gz"
-      sha256 "3d952dd394dc9b87f7053c1626af4ec42c99680968431f5765c19c3484b5fe41"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.0/aws-profile-darwin-arm64.tar.gz"
+      sha256 "11d331bbe92f507ccdb17c97bd8785334a9765659ec379908ec7ffb29932343d"
     else
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.8/aws-profile-darwin-amd64.tar.gz"
-      sha256 "4a156a9929f54b01adca63397672003776f443eeb57eb0bf2e5d1440a7076537"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.0/aws-profile-darwin-amd64.tar.gz"
+      sha256 "ddca92c96963840f6d672ebf303580bcea5d0bb29e479006b033e4efb3fdd190"
     end
   end
 
@@ -18,11 +18,11 @@ class AwsProfile < Formula
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.8/aws-profile-linux-arm64.tar.gz"
-      sha256 "0d87cbd0ba2c9652c8298c795c44a1d23bb2c53b3f1ae2c7e2c2458776e50bdc"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.0/aws-profile-linux-arm64.tar.gz"
+      sha256 "1d20ef633799f0657bf550a891820632000a975a2beecb4dea376403f767e2b9"
     else
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.8/aws-profile-linux-amd64.tar.gz"
-      sha256 "a231cf86757915593c081ef3713cb8f8bf7ef8732125e58f16dd6d902a704f6d"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.0/aws-profile-linux-amd64.tar.gz"
+      sha256 "f36daff72def245eae9659dd23aebf408e2f68a6ee8f5a8e251915be3efbf4e4"
     end
   end
 
@@ -35,17 +35,8 @@ class AwsProfile < Formula
       function awsp --description 'Interactively select an AWS profile'
         set account (aws-profile list | fzf --prompt="AWS account: " --height=~40%)
         test -n "$account" || return
-        set session (aws configure get sso_session --profile $account 2>/dev/null)
-        if test -z "$session"
-          set session (aws configure get sso_start_url --profile $account 2>/dev/null)
-        end
-        if test -n "$session"
-          set key (printf "%s" $session | shasum -a 1 | awk '{print }')
-          set cache $HOME/.aws/sso/cache/$key.json
-          if not test -f $cache; or not python3 -c "import json,sys,datetime as dt; d=json.load(open(sys.argv[1])); e=dt.datetime.fromisoformat(d['expiresAt'].replace('Z','+00:00')); sys.exit(0 if e>dt.datetime.now(dt.timezone.utc) else 1)" $cache 2>/dev/null
-            aws sso login --profile $account
-          end
-        else
+        set start_url (aws configure get sso_start_url --profile $account 2>/dev/null)
+        if not python3 -c "import json,glob,os,sys; from datetime import datetime,timezone; m=next((d for f in glob.glob(os.path.expanduser('~/.aws/sso/cache/*.json')) for d in [json.load(open(f))] if d.get('startUrl')==sys.argv[1] and d.get('accessToken')),None); sys.exit(0 if m and datetime.fromisoformat(m['expiresAt'].replace('Z','+00:00'))>datetime.now(timezone.utc) else 1)" $start_url 2>/dev/null
           aws sso login --profile $account
         end
         read -l -P "Elevated access? [y/N] " elevated
@@ -61,17 +52,10 @@ class AwsProfile < Formula
     (share/"zsh/site-functions").mkpath
     (share/"zsh/site-functions/_awsp").write <<~ZSH
       awsp() {
-        local account session key cache elevated
+        local account start_url elevated
         account=$(aws-profile list | fzf --prompt="AWS account: " --height=~40%) || return
-        session=$(aws configure get sso_session --profile "$account" 2>/dev/null)
-        [ -z "$session" ] && session=$(aws configure get sso_start_url --profile "$account" 2>/dev/null)
-        if [ -n "$session" ]; then
-          key=$(printf "%s" "$session" | shasum -a 1 | awk '{print }')
-          cache="$HOME/.aws/sso/cache/$key.json"
-          if [ ! -f "$cache" ] || ! python3 -c "import json,sys,datetime as dt; d=json.load(open(sys.argv[1])); e=dt.datetime.fromisoformat(d['expiresAt'].replace('Z','+00:00')); sys.exit(0 if e>dt.datetime.now(dt.timezone.utc) else 1)" "$cache" 2>/dev/null; then
-            aws sso login --profile "$account"
-          fi
-        else
+        start_url=$(aws configure get sso_start_url --profile "$account" 2>/dev/null)
+        if ! python3 -c "import json,glob,os,sys; from datetime import datetime,timezone; m=next((d for f in glob.glob(os.path.expanduser('~/.aws/sso/cache/*.json')) for d in [json.load(open(f))] if d.get('startUrl')==sys.argv[1] and d.get('accessToken')),None); sys.exit(0 if m and datetime.fromisoformat(m['expiresAt'].replace('Z','+00:00'))>datetime.now(timezone.utc) else 1)" "$start_url" 2>/dev/null; then
           aws sso login --profile "$account"
         fi
         read "elevated?Elevated access? [y/N] "
