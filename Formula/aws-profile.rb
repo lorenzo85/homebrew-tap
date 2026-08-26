@@ -1,16 +1,16 @@
 class AwsProfile < Formula
   desc "AWS IAM Identity Center profile switcher for infrastructure operators"
   homepage "https://github.com/lorenzo85/aws-profile"
-  version "0.8.5"
+  version "0.8.6"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.5/aws-profile-darwin-arm64.tar.gz"
-      sha256 "f19188f7ceee704398b8d462590d28bf1bfc38034a20ab3f4a2aa1327a9583df"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.6/aws-profile-darwin-arm64.tar.gz"
+      sha256 "ee028a75e7024a0a0497969b78061a814e52e9a124446de7a9faa30ea1ec993d"
     else
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.5/aws-profile-darwin-amd64.tar.gz"
-      sha256 "1ca8c259841d1913ed96c827a62900e26cd87fb5a7eaebcd5f554700eb425402"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.6/aws-profile-darwin-amd64.tar.gz"
+      sha256 "13b1f75a26757f0aee524969344bfd7b81519e857d0975c4e3c6b976fdc09dd5"
     end
   end
 
@@ -18,11 +18,11 @@ class AwsProfile < Formula
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.5/aws-profile-linux-arm64.tar.gz"
-      sha256 "997330174d119879dd2da44b57c13548e5627fc98e43bec352303d883aef0a1c"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.6/aws-profile-linux-arm64.tar.gz"
+      sha256 "584226dcd3083081e6d9f2411ba03bfba6c788114597bfb063b4dad41e5407a4"
     else
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.5/aws-profile-linux-amd64.tar.gz"
-      sha256 "88588c9c558a9f14ad0ae2188b1bc26d30cac04c388295d0e4235df9e6cd59df"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.6/aws-profile-linux-amd64.tar.gz"
+      sha256 "8023462ed104da547dad4392972bb170650cc6c8a518d2f7fb0bc6379a11f164"
     end
   end
 
@@ -56,7 +56,7 @@ class AwsProfile < Formula
         if ! aws sts get-caller-identity --profile "$account" &>/dev/null; then
           aws sso login --profile "$account"
         fi
-        read -r -p "Elevated access? [y/N] " elevated
+        read "elevated?Elevated access? [y/N] "
         if [[ "$elevated" =~ ^[Yy]$ ]]; then
           aws-profile "${account}+"
         else
