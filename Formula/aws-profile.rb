@@ -1,16 +1,16 @@
 class AwsProfile < Formula
   desc "AWS IAM Identity Center profile switcher for infrastructure operators"
   homepage "https://github.com/lorenzo85/aws-profile"
-  version "0.9.3"
+  version "0.9.4"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.3/aws-profile-darwin-arm64.tar.gz"
-      sha256 "25b09ad7592778b77dfe4d0780c1941bec8b3a34ef8919ef4c2fde7204f3091b"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.4/aws-profile-darwin-arm64.tar.gz"
+      sha256 "4a1078336706e85a62e8030366046557cff8bd1212adffe758922041d141d6d6"
     else
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.3/aws-profile-darwin-amd64.tar.gz"
-      sha256 "269d9e602e23105a030e66a8451d1701637b4e6b78588e53148736e356484b19"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.4/aws-profile-darwin-amd64.tar.gz"
+      sha256 "a1a1b7c66be6f9bddc8a8bb5e7f86a3daf7581658542b6f7898b5f6ef07d52ed"
     end
   end
 
@@ -18,11 +18,11 @@ class AwsProfile < Formula
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.3/aws-profile-linux-arm64.tar.gz"
-      sha256 "09a884db6d1cf5d93bbd08734a82e1d00b16e6ca477407af8b62be4b364ac122"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.4/aws-profile-linux-arm64.tar.gz"
+      sha256 "6113074318dcb584409c8b71a893c3130a783dea1f533fa26767ee50b8bb1838"
     else
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.3/aws-profile-linux-amd64.tar.gz"
-      sha256 "96b2ff1ae56cd80436b80c0722631194a609307d87070c9a8c48807a0bccb279"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.9.4/aws-profile-linux-amd64.tar.gz"
+      sha256 "c6c6dad5bbdaed2a7b8dc2a1bc7522e94a46961f8c3c5ef0ebc773f386eef2ac"
     end
   end
 
@@ -35,7 +35,7 @@ class AwsProfile < Formula
       function awsp --description 'Interactively select an AWS profile'
         set selection (begin; echo "[all > standing access]"; aws-profile list; end | fzf --prompt="AWS account: " --height=~40% --multi --bind 'space:toggle' --marker '✓ ')
         test -n "$selection" || return
-        if contains -- "[all > standing access]" $selection
+        if string match -q '*standing access*' $selection
           aws-profile reset
           return
         end
@@ -61,7 +61,7 @@ class AwsProfile < Formula
       awsp() {
         local accounts start_url elevated account
         accounts=$({ echo "[all > standing access]"; aws-profile list; } | fzf --prompt="AWS account: " --height=~40% --multi --bind 'space:toggle' --marker '✓ ') || return
-        if echo "$accounts" | grep -qx '\[all → standing access\]'; then
+        if echo "$accounts" | grep -q 'standing access'; then
           aws-profile reset
           return
         fi
