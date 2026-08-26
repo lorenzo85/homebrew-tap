@@ -1,16 +1,16 @@
 class AwsProfile < Formula
   desc "AWS IAM Identity Center profile switcher for infrastructure operators"
   homepage "https://github.com/lorenzo85/aws-profile"
-  version "0.8.6"
+  version "0.8.7"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.6/aws-profile-darwin-arm64.tar.gz"
-      sha256 "ee028a75e7024a0a0497969b78061a814e52e9a124446de7a9faa30ea1ec993d"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.7/aws-profile-darwin-arm64.tar.gz"
+      sha256 "b8d6f4e2a7b6a8d9a9bf9feaa18c5f1241b52507a4f73ae9d061d90775d1d7b3"
     else
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.6/aws-profile-darwin-amd64.tar.gz"
-      sha256 "13b1f75a26757f0aee524969344bfd7b81519e857d0975c4e3c6b976fdc09dd5"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.7/aws-profile-darwin-amd64.tar.gz"
+      sha256 "74eb0fdd2a996726f1532ba01948562d024da4de39ae5d0cf57e24d0ab0af746"
     end
   end
 
@@ -18,11 +18,11 @@ class AwsProfile < Formula
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.6/aws-profile-linux-arm64.tar.gz"
-      sha256 "584226dcd3083081e6d9f2411ba03bfba6c788114597bfb063b4dad41e5407a4"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.7/aws-profile-linux-arm64.tar.gz"
+      sha256 "6175dffedc02cce37dc3202f4af7882683e822d5bfd95761f472abca813f305e"
     else
-      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.6/aws-profile-linux-amd64.tar.gz"
-      sha256 "8023462ed104da547dad4392972bb170650cc6c8a518d2f7fb0bc6379a11f164"
+      url "https://github.com/lorenzo85/aws-profile/releases/download/v0.8.7/aws-profile-linux-amd64.tar.gz"
+      sha256 "b552fafdbba621840c759836fd4a9d779d238c97369ab172bb294ea24348e314"
     end
   end
 
@@ -68,8 +68,11 @@ class AwsProfile < Formula
 
   def caveats
     <<~EOS
-      To use the awsp interactive profile switcher in zsh, add to ~/.zshrc:
-        source #{opt_share}/zsh/site-functions/_awsp
+      To use the awsp interactive profile switcher in zsh, run once:
+        echo 'source #{opt_share}/zsh/site-functions/_awsp' >> ~/.zshrc
+
+      Then reload your shell or run:
+        source ~/.zshrc
 
       Fish shell loads awsp automatically — no extra steps needed.
     EOS
